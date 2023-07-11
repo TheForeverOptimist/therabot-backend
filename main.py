@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from database import connect_to_mongodb
-from models import User
+from models.user import UserCreate, LoginCredentials, UserDB
+from models.person import PersonCreate, PersonDB
+from models.entry import EntryCreate
+from routes.crud import create_document
+from pymongo.errors import PyMongoError
 import bcrypt
 
 app = FastAPI()
@@ -13,9 +17,9 @@ db = connect_to_mongodb()
 async def root():
     return {"message": "server up and running"}
 
-@app.post("/users")
-def create_user(user: User):
-    hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt(10)).decode("utf-8")
+@app.post("/user")
+def create_user(user: UserCreate):
+    hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     # Create the user document with the hashed password
     new_user = {
@@ -33,22 +37,34 @@ def create_user(user: User):
 
     return {"message": "User created successfully"}
 
+
 @app.post("/login")
-def login(credentials: dict):
-    email = credentials.get("email")
-    password = credentials.get("password")
+def login(credentials: LoginCredentials):
+    email = credentials.email
+    password = credentials.password
 
     if not email or not password:
         raise HTTPException(status_code=422, detail="Email and password are required")
 
-    # Find the user with the provided email
     user = db.users.find_one({"email": email})
 
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Check if the password matches
     if bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
         return {"message": "Login successful"}
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@app.post("/person")
+def create_person(person: PersonCreate):
+    inserted_id = create_document(db, 'persons', person)
+    return {"message": "Person created successfully", "inserted_id": inserted_id}
+
+@app.post("/entry")
+def create_person(entry: EntryCreate):
+    inserted_id = create_document(db, 'entries', entry)
+    return {"message": "Entry created successfully", "inserted_id": inserted_id}
+
+
