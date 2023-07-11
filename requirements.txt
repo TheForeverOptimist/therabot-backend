@@ -1,0 +1,5 @@
+fastapi==0.100.0
+mongoengine==0.27.0
+pymongo==4.4.0
+python-dotenv==1.0.0
+python_bcrypt==0.3.2
