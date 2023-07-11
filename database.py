@@ -11,6 +11,7 @@ port = int(os.getenv('PORT'))
 
 def connect_to_mongodb():
     try:
+        global db
         # Connect to MongoDB
         client = MongoClient(mongodb_url, port=port)
         db = client["therabot"]
@@ -18,3 +19,8 @@ def connect_to_mongodb():
         return db
     except Exception as e:
         print("Failed to connect to MongoDB:", str(e))
+
+def get_db():
+    if db is None:
+        raise Exception("Database connection has not been established. Call connect_to_mongodb first.")
+    return db
