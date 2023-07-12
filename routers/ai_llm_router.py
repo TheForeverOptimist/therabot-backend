@@ -31,7 +31,7 @@ ENTRY_PROMPT_GUIDELINES = """
 Mood:{entry.mood} out of 5 (1 being unhappy, and 5 being happy).
 
 Rewrite and summarize these statements for me, written in first person. 
-Try to start your response with either "I".
+Try to start your response with either "I" or a person's name.
 
 Statements:
 """
