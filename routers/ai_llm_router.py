@@ -1,42 +1,17 @@
-import openai
 from fastapi import APIRouter, Request, Depends, Header
 from fastapi.exceptions import HTTPException
-from dotenv import load_dotenv
-from database import get_db
+from clients.database import get_db
 from bson.objectid import ObjectId
+from .entry_router import create_entry
+from models.entry import EntryCreate
 from utils import CustomJSONEncoder
-import os
 import json
+import openai
 
-# Load environment variables from .env file
-load_dotenv()
 
 router = APIRouter()
 
-def setup_openai(api_key):
-    openai.api_key = api_key
-
-setup_openai(os.getenv('openai_api_key'))
-
-
-try:
-    # Connection test request
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt="Can you see this message? Respond with either Y or N.",
-        max_tokens=3,
-    )
-    print("Connection to OpenAI API is successful!")
-    answer = response.choices[0].text.strip()
-    if answer == "Y":
-        print("Ai Response: Yes")
-    else:
-        print("Ai Response: No, the prompt that was sent to me cannot be seen")
-except Exception as e:
-    print("Connection to OpenAI API failed:", str(e))
-
-
-@router.post("/ai/response")
+@router.post("/ai/test")
 async def generate_chat_response(request: Request):
     data = await request.json()
     message = data["message"]
@@ -51,9 +26,42 @@ async def generate_chat_response(request: Request):
     )
     return response.choices[0].text.strip()
 
+# Prompt guidelines for generating the summary
+ENTRY_PROMPT_GUIDELINES = """
+Mood:{entry.mood} out of 5 (1 being unhappy, and 5 being happy).
+
+Rewrite and summarize these statements for me, written in first person. 
+Try to start your response with either "I".
+
+Statements:
+"""
+
+
+@router.post("/ai/entry")
+def create_entry_with_ai(entry:EntryCreate):
+    # Retrieve related entries from the database
+    
+    # Generate summary using OpenAI
+    prompt = ENTRY_PROMPT_GUIDELINES + str(entry.statements)
+    print(prompt)
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=100,  # Adjust the value based on your desired summary length
+        temperature=0.7,
+        n=1,
+        stop=None
+    )
+
+    entry.reflection = response.choices[0].text.strip()
+    db_entry = create_entry(entry)
+    print(db_entry)
+    return entry.reflection
+
+
 
 # Prompt guidelines for generating the summary
-PROMPT_GUIDELINES = """
+SUMMARY_PROMPT_GUIDELINES = """
 Summaries are useful for:
 1. Clarifying emotions for the client.
 2. Drawing together the main threads of the data.
@@ -78,7 +86,7 @@ def generate_summary(person: str, user_id: str = Header(...), db=Depends(get_db)
         raise HTTPException(status_code=404, detail="Entry not found")
 
     # Generate summary using OpenAI
-    prompt = PROMPT_GUIDELINES + str(statements)
+    prompt = SUMMARY_PROMPT_GUIDELINES + str(statements)
     print(prompt)
     response = openai.Completion.create(
         engine="text-davinci-002",

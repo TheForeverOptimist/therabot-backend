@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Header
 from fastapi.exceptions import HTTPException
 from routers.crud import create_document, get_documents_by_user, get_document_by_id, update_document
-from database import get_db
+from clients.database import get_db
 from models.entry import EntryCreate
 from utils import CustomJSONEncoder
 import json

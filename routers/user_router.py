@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from database import get_db
+from clients.database import get_db
 from models.user import UserCreate
 import bcrypt
 

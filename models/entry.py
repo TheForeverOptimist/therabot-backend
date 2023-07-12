@@ -12,11 +12,13 @@ class EntryBase(BaseModel):
     mood: Optional[int]
     creation_date: Optional[datetime]
     statements: Optional[List[str]]
+    reflection: Optional[str]
 
 class EntryCreate(EntryBase):
     mood: Optional[int] = None
     creation_date: Optional[datetime] = None
     statements: List[str] = []
+    reflection: Optional[str] = None
 
     # Custom validator to convert ObjectId to string
     @validator('user', 'person')
@@ -32,6 +34,7 @@ class EntryDB(Document):
     mood = IntField(required=False)
     creation_date = DateTimeField(default=datetime.utcnow)
     statements = ListField(StringField(), required=False)
+    reflection = StringField(required=False)
 
     meta = {
         'collection': 'entries',

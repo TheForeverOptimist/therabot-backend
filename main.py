@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
-from database import connect_to_mongodb
+from clients.database import connect_to_mongodb
+from clients.openai import test_openai_connection
 from models.user import LoginCredentials
 from routers.person_router import router as person_router
 from routers.entry_router import router as entry_router
@@ -15,9 +16,16 @@ app.include_router(entry_router)
 app.include_router(user_router)
 app.include_router(ai_llm_router)
 
-# Connect to MongoDB
+# Connect to MongoDb
 db = connect_to_mongodb()
 app.state.db = db
+
+# Test OpenAI connection
+if test_openai_connection():
+    print("Connection to OpenAI API is successful!")
+else:
+    print("Connection to OpenAI API failed")
+
 
 
 @app.get("/")
