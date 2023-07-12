@@ -5,6 +5,7 @@ from models.user import LoginCredentials
 from routers.person_router import router as person_router
 from routers.entry_router import router as entry_router
 from routers.user_router import router as user_router
+from routers.ai_llm_router import router as ai_llm_router
 import bcrypt
 
 app = FastAPI()
@@ -12,6 +13,7 @@ app = FastAPI()
 app.include_router(person_router)
 app.include_router(entry_router)
 app.include_router(user_router)
+app.include_router(ai_llm_router)
 
 # Connect to MongoDB
 db = connect_to_mongodb()
