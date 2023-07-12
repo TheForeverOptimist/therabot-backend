@@ -2,14 +2,10 @@ from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from database import connect_to_mongodb
 from models.user import LoginCredentials
-from pymongo.errors import PyMongoError
 from routers.person_router import router as person_router
 from routers.entry_router import router as entry_router
 from routers.user_router import router as user_router
 import bcrypt
-from bson import ObjectId
-import json
-from utils import CustomJSONEncoder
 
 app = FastAPI()
 
@@ -40,19 +36,7 @@ def login(credentials: LoginCredentials):
         raise HTTPException(status_code=404, detail="User not found")
 
     if bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
-        user_id = str(user["_id"])
-        entries = db.entries.find({"user": ObjectId(user_id)})
-        persons = db.persons.find({"user": ObjectId(user_id)})
-
-        entries_list = list(entries)
-        persons_list = list(persons)
-
-        response_content = {
-            "message": "Login successful",
-            "entries": entries_list,
-            "persons": persons_list
-        }
-        return json.dumps(response_content, cls=CustomJSONEncoder)
+        return {"message": "Login successful"}
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

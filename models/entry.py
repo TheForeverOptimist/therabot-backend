@@ -16,7 +16,7 @@ class EntryBase(BaseModel):
 class EntryCreate(EntryBase):
     mood: Optional[int] = None
     creation_date: Optional[datetime] = None
-    statements: Optional[List[str]] = None
+    statements: List[str] = []
 
     # Custom validator to convert ObjectId to string
     @validator('user', 'person')

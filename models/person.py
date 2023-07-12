@@ -15,7 +15,7 @@ class PersonBase(BaseModel):
 class PersonCreate(PersonBase):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    summary: Optional[List[str]] = None
+    summary: List[str] = []
 
     # Custom validator to convert ObjectId to string
     @validator('user')
