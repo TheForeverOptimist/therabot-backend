@@ -60,7 +60,7 @@ def login(credentials: LoginCredentials):
 
     if bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
         print(user)
-        return {"message": "Login successful", "user_id": f"{user['_id']}"}
+        return {"message": "Login successful", "user_id": f"{user['_id']}", "name": f"{user['name']}"}
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
