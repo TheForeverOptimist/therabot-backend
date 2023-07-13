@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from clients.database import connect_to_mongodb
 from clients.openai import test_openai_connection
 from models.user import LoginCredentials
@@ -10,6 +11,14 @@ from routers.ai_llm_router import router as ai_llm_router
 import bcrypt
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(person_router)
 app.include_router(entry_router)
