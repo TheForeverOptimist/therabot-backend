@@ -10,7 +10,7 @@ def get_document_by_id(database, collection_name: str, document_id: str):
 
 def get_documents_by_user(database, collection_name: str, user_id: str):
     collection = database[collection_name]
-    return collection.find({"user": ObjectId(user_id)})
+    return collection.find({"user": ObjectId(user_id)}).sort('creation_date', -1)
 
 def create_document(database, collection_name: str, document: BaseModel):
     collection = database[collection_name]
