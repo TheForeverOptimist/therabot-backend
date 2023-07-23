@@ -28,21 +28,27 @@ async def generate_chat_response(request: Request):
 
 # Prompt guidelines for generating the summary
 ENTRY_PROMPT_GUIDELINES = """
-Mood:{entry.mood} out of 5 (1 being unhappy, and 5 being happy).
+Mood:{mood} out of 5 (1 being unhappy, and 5 being happy).
 
-Rewrite and summarize these statements for me, written in first person. 
-Try to start your response with either "I" or a person's name.
+Rewrite and summarize these statements for me, written in second person. 
+Try to start your response with either "You" or a person's name.
+Limit the response to 3 sentences.
 
 Statements:
 """
-
+def parse_statements(statements: list):
+    statements_only = ""
+    for statement in statements:
+        statements_only += statement[1]
+        statements_only += ". "
+    return statements_only
 
 @router.post("/ai/entry")
 def create_entry_with_ai(entry:EntryCreate):
     # Retrieve related entries from the database
-    
+    current_statements = parse_statements(entry.statements)
     # Generate summary using OpenAI
-    prompt = ENTRY_PROMPT_GUIDELINES + str(entry.statements)
+    prompt = ENTRY_PROMPT_GUIDELINES.format(mood=entry.mood) + str(current_statements)
     print(prompt)
     response = openai.Completion.create(
         engine="text-davinci-002",
@@ -60,6 +66,7 @@ def create_entry_with_ai(entry:EntryCreate):
 
 
 
+
 # Prompt guidelines for generating the summary
 SUMMARY_PROMPT_GUIDELINES = """
 Summaries are useful for:
@@ -72,7 +79,7 @@ Generate a summary that reflects these objectives for the following list of stat
 
 def get_user_entries_by_person(user_id, person, db):
     collection = db['entries']
-    query = {"user": ObjectId(user_id), "person": ObjectId(person)}
+    query = {"user": user_id, "person": ObjectId(person)}
     entries = collection.find(query)
     return entries
 

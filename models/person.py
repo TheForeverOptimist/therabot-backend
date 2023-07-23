@@ -20,6 +20,8 @@ class PersonCreate(PersonBase):
     # Custom validator to convert ObjectId to string
     @validator('user')
     def convert_objectid(cls, user):
+        if isinstance(user, ObjectId):
+            return user
         return ObjectId(user)
 
 class Person(PersonBase):
