@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, Header
 from fastapi.exceptions import HTTPException
-from clients.database import get_db
+from clients.database import db
 from bson.objectid import ObjectId
 from .entry_router import create_entry
 from models.entry import EntryCreate
@@ -84,7 +84,7 @@ def get_user_entries_by_person(user_id, person, db):
     return entries
 
 @router.get("/ai/summary/{person}")
-def generate_summary(person: str, user_id: str = Header(...), db=Depends(get_db)):
+def generate_summary(person: str, user_id: str = Header(...)):
     # Retrieve related entries from the database
     entries = get_user_entries_by_person(user_id, person, db)
     if entries:

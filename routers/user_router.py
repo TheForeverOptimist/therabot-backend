@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from clients.database import get_db
+from clients.database import db
 from models.user import UserCreate
 import bcrypt
 
@@ -18,7 +18,6 @@ def create_user(user: UserCreate):
     }
 
     # Get the collection for the User model
-    db = get_db()
     users_collection = db["users"]
 
     # Insert the new_user document into the users collection
